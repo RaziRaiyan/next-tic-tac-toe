@@ -1,12 +1,12 @@
 import '../styles/index.css'
 import Header from '../components/Header';
+import Background from '../components/Background';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <>
-      <Header/>
+    <Background>
       <Component {...pageProps} />
-    </>
+    </Background>
   )
 }
 
