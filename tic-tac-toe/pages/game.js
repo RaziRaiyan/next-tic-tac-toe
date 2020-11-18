@@ -1,46 +1,42 @@
 import React, {useState, useEffect} from 'react';
 import Dialog from '../components/Dialog';
+import PopUp from '../components/PopUp';
 import {GAME_MODE} from './index';
 import {useRouter} from 'next/router';
 import Link from 'next/Link';
 
-export default function Home() {
+export const MARKER = {
+  FIRST_PLAYER: 1,
+  SECOND_PLAYER_OR_MACHINE: -1
+}
 
-  const router = useRouter();
-  console.log(router.query);
+// Board:
+// cell having value = 0 : Cell is empty
+// Cell having value = 1 (MARKER.FIRST_PLAYER) : Player 1 marked on the cell
+// Cell having value = -1 (MARKER.SECOND_PLAYER_OR_MACHINE): Player 2 / Computer marked on the cell
+export default function Game({
+                               initial_board_state = [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+                               initialPlayerState = true,
+                               initialCellLeft = 9
+                             }) {
 
-  // Board:
-  // cell having value = 0 : Cell is empty
-  // Cell having value = 1 : Player 1 marked on the cell
-  // Cell having value = -1: Player 2 / Computer marked on the cell
-  const initial_board_state = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-  const initialPlayerState = true;
-  const initialCellLeft = 9;
 
-  const initialState = {
-    board: initial_board_state,
-    player: initialPlayerState,
-    cellLeft: initialCellLeft
-  }
-
-  const [state, setState] = useState(initialState);
-
-  const [board, setboard] = useState(initial_board_state);
+  const [board, setBoard] = useState(initial_board_state);
   const [player, setPlayer] = useState(initialPlayerState);
   const [cellLeft, setCellLeft] = useState(initialCellLeft);
   const [playerWon, setPlayerWon] = useState(0);
   const [firstPlayerScore, setFirstPlayerScore] = useState(0);
   const [secondPlayerScore, setSecondPlayerScore] = useState(0);
-  const vsMachine = router.query.mode == GAME_MODE.VS_MACHINE;
 
-  console.log("Rendered")
+  const router = useRouter();
+  const vsMachine = router.query.mode === GAME_MODE.VS_MACHINE;
 
   // Gets empty cells
   const getEmptyCells = (new_board) => {
     let emptyCells = [];
     for(let i=0; i<3; i++){
       for(let j=0; j<3; j++){
-        if(new_board[i][j] == 0){
+        if(new_board[i][j] === 0){
           emptyCells.push([i, j]);
         }
       }
@@ -48,25 +44,18 @@ export default function Home() {
     return emptyCells;
   }
 
-  function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  // useEffect(() => {
-  //   machinePlay()
-  // }, [machineTurn])
 
   const humanVsMachine = (human_row, human_col) => {
 
-    if(board[human_row][human_col] != 0 || playerWon != 0){
+    if(board[human_row][human_col] !== 0 || playerWon !== 0){
       return;
     }
     let new_board = [...board];
-    new_board[human_row][human_col] = player ? 1 : -1;
+    new_board[human_row][human_col] = player ? MARKER.FIRST_PLAYER : MARKER.SECOND_PLAYER_OR_MACHINE;
     if(checkWinner()){
-      setboard(new_board);
+      setBoard(new_board);
       setCellLeft(cellLeft-1);
-      setPlayerWon(1);
+      setPlayerWon(MARKER.FIRST_PLAYER);
       setFirstPlayerScore(firstPlayerScore+1);
       return;
     }
@@ -77,26 +66,26 @@ export default function Home() {
       const machineCellChoice = emptyCells[machineCell];
       const machine_row = machineCellChoice[0];
       const machine_col = machineCellChoice[1];
-      new_board[machine_row][machine_col] = player ? -1: 1;
+      new_board[machine_row][machine_col] = player ? MARKER.SECOND_PLAYER_OR_MACHINE: MARKER.FIRST_PLAYER;
     }
-    setboard(new_board);
-    setCellLeft(cellLeft-1);
+    setBoard(new_board);
+    setCellLeft(cellLeft-2);
     if(checkWinner()){
-      setPlayerWon(-1);
+      setPlayerWon(MARKER.SECOND_PLAYER_OR_MACHINE);
       setSecondPlayerScore(secondPlayerScore+1);
     }
   }
 
   const humanVsHuman = (row, col) => {
     let new_board = [...board];
-    new_board[row][col] = player ? 1 : -1;
-    setboard(new_board);
+    new_board[row][col] = player ? MARKER.FIRST_PLAYER : MARKER.SECOND_PLAYER_OR_MACHINE;
+    setBoard(new_board);
 
     setCellLeft(cellLeft-1);
     if(checkWinner()){
-      const winner = player ? 1: -1;
+      const winner = player ? MARKER.FIRST_PLAYER: MARKER.SECOND_PLAYER_OR_MACHINE;
       setPlayerWon(winner);
-      if(winner == 1){
+      if(winner === 1){
         setFirstPlayerScore(firstPlayerScore+1);
       }else{
         setSecondPlayerScore(secondPlayerScore+1);
@@ -107,7 +96,7 @@ export default function Home() {
 
   // Handles cell click
   const handleCellClick = (e, row, col) => {
-    if(board[row][col] != 0 || playerWon != 0){
+    if(board[row][col] !== 0 || playerWon !== 0){
       return;
     }
     if(vsMachine){
@@ -123,18 +112,18 @@ export default function Home() {
   const checkWinner = () => {
     if(
       // Horizontal rows Check
-    (board[0][0] != 0 && board[0][0] == board[0][1] && board[0][0] == board[0][2]) ||
-    (board[1][0] != 0 && board[1][0] == board[1][1] && board[1][0] == board[1][2])  ||
-    (board[2][0] != 0 && board[2][0] == board[2][1] && board[2][0] == board[2][2]) ||
+    (board[0][0] !== 0 && board[0][0] === board[0][1] && board[0][0] === board[0][2]) ||
+    (board[1][0] !== 0 && board[1][0] === board[1][1] && board[1][0] === board[1][2])  ||
+    (board[2][0] !== 0 && board[2][0] === board[2][1] && board[2][0] === board[2][2]) ||
 
       // Vertical columns Check
-    (board[0][0] != 0 && board[0][0] == board[1][0] && board[0][0] == board[2][0]) ||
-    (board[0][1] != 0 && board[0][1] == board[1][1] && board[0][1] == board[2][1]) ||
-    (board[0][2] != 0 && board[0][2] == board[1][2] && board[0][2] == board[2][2]) ||
+    (board[0][0] !== 0 && board[0][0] === board[1][0] && board[0][0] === board[2][0]) ||
+    (board[0][1] !== 0 && board[0][1] === board[1][1] && board[0][1] === board[2][1]) ||
+    (board[0][2] !== 0 && board[0][2] === board[1][2] && board[0][2] === board[2][2]) ||
     
       // Diagonals Check
-    (board[0][0] != 0 && board[0][0] == board[1][1] && board[0][0] == board[2][2]) ||
-    (board[2][0] != 0 && board[2][0] == board[1][1] && board[2][0] == board[0][2])
+    (board[0][0] !== 0 && board[0][0] === board[1][1] && board[0][0] === board[2][2]) ||
+    (board[2][0] !== 0 && board[2][0] === board[1][1] && board[2][0] === board[0][2])
     ){
       // Someone won the game
       // If it was player 1's turn: Player 1 won
@@ -146,16 +135,16 @@ export default function Home() {
   }
 
   const renderIcon = (row, col) => {
-    if (board[row][col] == 1){
-      return (<img src="/O_orange.svg" className="h-16 w-16 mx-auto my-auto animate-pop"/>)
-    }else if(board[row][col] == -1){
-      return (<img src="/X_blue.svg" className="h-16 w-16 mx-auto my-auto animate-pop"/>)
+    if (board[row][col] === MARKER.FIRST_PLAYER){
+      return (<img src="/O_orange.svg" className="h-16 w-16 mx-auto my-auto animate-pop" alt="O"/>)
+    }else if(board[row][col] === -1){
+      return (<img src="/X_blue.svg" className="h-16 w-16 mx-auto my-auto animate-pop" alt="X"/>)
     }
     return null;
   }
 
   const handleRestart = () => {
-    setboard(initial_board_state);
+    setBoard(initial_board_state);
     setCellLeft(initialCellLeft);
     setPlayer(initialPlayerState);
     setPlayerWon(0);
@@ -164,58 +153,10 @@ export default function Home() {
   }
 
   const handleContinue = () => {
-    setboard(initial_board_state);
+    setBoard(initial_board_state);
     setCellLeft(initialCellLeft);
     setPlayer(initialPlayerState);
     setPlayerWon(0);
-  }
-
-  const renderPopup = () => {
-
-    let text = "Match Tied";
-    let logo = null;
-
-    if(playerWon == 1){
-      logo = (<img rel="winner_logo" src="/O_orange.svg"/>);
-      if(vsMachine){
-        text = "You Won"
-      }else{
-        text = "First Player Won"
-      }
-    }else if(playerWon == -1){
-      logo = (<img rel="winner_logo" src="/X_blue.svg"/>);
-      if(vsMachine){
-        text = "Machine Won"
-      }else{
-        text = "Second Player Won"
-      }
-    }
-
-    return (
-      <div className="bg-black bg-opacity-50 absolute inset-0 flex justify-center items-center z-50">
-          <div className="w-5/6 sm:w-3/4 md:w-1/2 h-64 bg-gray-200 shadow-mdGrayCenter animate-popSimple opacity-100 rounded-3xl flex flex-col justify-center items-center">
-            <div className="h-16 w-16 mb-4">
-              {logo}
-            </div>
-            <div className={`text-blueGray-700 text-3xl font-hairline mb-4`}>
-              {text}
-            </div>
-            <div className="flex justify-center items-center">
-              <Link href="/">
-                <a className="h-10 w-10 m-4 rounded-full shadow-cell flex justify-center items-center focus:outline-none cursor-pointer">
-                  <img rel="menu" src="/menu.svg"/>
-                </a>
-              </Link>
-              <button className="h-12 w-12 m-4 rounded-full shadow-cell flex justify-center items-center focus:outline-none" onClick={() => handleRestart()}>
-                <img rel="restart" src="/restart.svg"/>
-              </button>
-              <button className="h-12 w-12 m-4 rounded-full shadow-cell flex justify-center items-center focus:outline-none" onClick={() => handleContinue()}>
-                <img className="h-5 w-5" rel="restart" src="/continue.svg"/>
-              </button>
-            </div>
-          </div>
-        </div>
-    )
   }
 
   const playerHover = () => {
@@ -225,13 +166,14 @@ export default function Home() {
   return (
       <div className="container w-screen my-auto rounded-lg mb-4">
         {
-          (playerWon != 0 || cellLeft <= 0) && renderPopup()
+          (playerWon !== 0 || cellLeft <= 0) && <PopUp playerWon={playerWon} vsMachine={vsMachine}
+                                                       callBackHandleContinue={handleContinue}
+                                                       callBackHandleRestart={handleRestart}/>
         }
 
-        <div className={`flex justify-center md:mb-10 items-center`}>
+        <div className={`flex justify-center md:mb-10 items-center`} data-testid="data-game-dialog-container">
           {
-            !vsMachine && 
-            <Dialog player={player} playerWon={playerWon} cellLeft={cellLeft}/>
+            !vsMachine && <Dialog player={player} playerWon={playerWon} cellLeft={cellLeft}/>
           }
           
         </div>
@@ -254,15 +196,16 @@ export default function Home() {
             {firstPlayerScore}
           </div>
           
-          <div className={`mx-auto}`}>
+          <div className={`mx-auto}`} data-testid="data-game-row-container">
           {
             board.map((row, row_index) => {
-              return (<div className="flex flex-row justify-center" key={row_index}>
+              return (<div className="flex flex-row justify-center" key={row_index} data-testid="data-game-cell-container">
                 {row.map((cell, cell_index) => {
-                    return <button className={`h-24 w-24 flex flex-row 
+                    return <button  data-testid="data-game-cell"
+                          className={`h-24 w-24 flex flex-row 
                           shadow-mdPurpleCenter
-                          ${board[row_index][cell_index] != 0 || playerWon != 0 ? "cursor-not-allowed": ""}
-                          ${board[row_index][cell_index] == 0 && playerWon == 0 ? playerHover() : ""}
+                          ${board[row_index][cell_index] !== 0 || playerWon !== 0 ? "cursor-not-allowed": ""}
+                          ${board[row_index][cell_index] === 0 && playerWon === 0 ? playerHover() : ""}
                           m-2 rounded-md
                           text-xs focus:outline-none`}
                         onClick = {e => handleCellClick(e, row_index, cell_index, true)}
@@ -294,3 +237,4 @@ export default function Home() {
       </div>
   )
 }
+

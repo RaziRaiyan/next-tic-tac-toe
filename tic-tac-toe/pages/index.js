@@ -1,6 +1,5 @@
 import Link from 'next/Link';
-import React, {useEffect} from "react";
-import Router from 'next/router';
+import React from "react";
 
 export const GAME_MODE = {
     VS_HUMAN: "VS_HUMAN",
@@ -9,11 +8,6 @@ export const GAME_MODE = {
 
 
 const Home = () => {
-
-    // useEffect(() => {
-    //     Router.push('/check')
-    // }, [])
-
 
     return (
         <div className="font-semibold text-center">
