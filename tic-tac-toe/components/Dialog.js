@@ -1,23 +1,12 @@
 const Dialog = ({player, playerWon, cellLeft}) => {
 
     const showText = ()=>{
-        if(playerWon != 0){
-            if(playerWon == 1){
-                return "First player won"
-            }else{
-                return "Second player won"
-            }
-        }else if(cellLeft <= 0){
-            return "Match Tied"
-        }else{
-            return `${player ? "First": "Second"} player  turn`;
-        }
+        return `${player ? "First": "Second"} player  turn`;
     }
 
     return (
-        <div className={`text-center p-2 uppercase text-2xl shadow-mdBlue
-            bg-gradient-to-r from-teal-400 to-teal-500
-         text-white inline-block rounded-lg`}>
+        <div className={`text-center py-2 px-6 uppercase text-xl font-hairline
+         text-blueGray-600 inline-block rounded-full ${(playerWon != 0 || cellLeft <= 0) && "opacity-0"}`}>
             {showText()}
         </div>
     )

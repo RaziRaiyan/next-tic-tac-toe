@@ -10,10 +10,10 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-        <link rel="shortcut icon" href="/tic_tac_toe.svg" />
+        <link rel="shortcut icon" href="/logo_new.svg" />
         </Head>
 
-        <body className="bg-gray-100">
+        <body className="bg-gray-100 font-balsamiq">
           <Main />
           <NextScript />
         </body>
