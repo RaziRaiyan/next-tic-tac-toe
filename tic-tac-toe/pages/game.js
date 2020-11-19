@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import Dialog from '../components/Dialog';
 import PopUp from '../components/PopUp';
-import {GAME_MODE} from './index';
+import {GAME_MODE, DIFFICULTY} from './index';
 import {useRouter} from 'next/router';
 import Link from 'next/Link';
+import {checkWinner, makeMachineMove} from "../utils/game_logic";
 
 export const MARKER = {
   FIRST_PLAYER: 1,
@@ -19,7 +20,13 @@ export default function Game({
                                initialPlayerState = true,
                                initialCellLeft = 9
                              }) {
-
+  const router = useRouter();
+  const vsMachine = router.query.mode === GAME_MODE.VS_MACHINE;
+  const difficulty = router.query.difficulty
+  if(vsMachine && difficulty === DIFFICULTY.IMPOSSIBLE){
+    initial_board_state[1][1] = -1;
+    initialCellLeft = 8;
+  }
 
   const [board, setBoard] = useState(initial_board_state);
   const [player, setPlayer] = useState(initialPlayerState);
@@ -27,32 +34,15 @@ export default function Game({
   const [playerWon, setPlayerWon] = useState(0);
   const [firstPlayerScore, setFirstPlayerScore] = useState(0);
   const [secondPlayerScore, setSecondPlayerScore] = useState(0);
-
-  const router = useRouter();
-  const vsMachine = router.query.mode === GAME_MODE.VS_MACHINE;
-
-  // Gets empty cells
-  const getEmptyCells = (new_board) => {
-    let emptyCells = [];
-    for(let i=0; i<3; i++){
-      for(let j=0; j<3; j++){
-        if(new_board[i][j] === 0){
-          emptyCells.push([i, j]);
-        }
-      }
-    }
-    return emptyCells;
-  }
-
+  const [mediumFlag, setMediumFlag] = useState(false);
 
   const humanVsMachine = (human_row, human_col) => {
-
     if(board[human_row][human_col] !== 0 || playerWon !== 0){
       return;
     }
     let new_board = [...board];
-    new_board[human_row][human_col] = player ? MARKER.FIRST_PLAYER : MARKER.SECOND_PLAYER_OR_MACHINE;
-    if(checkWinner()){
+    new_board[human_row][human_col] = MARKER.FIRST_PLAYER
+    if(checkWinner(board) === MARKER.FIRST_PLAYER){
       setBoard(new_board);
       setCellLeft(cellLeft-1);
       setPlayerWon(MARKER.FIRST_PLAYER);
@@ -60,20 +50,15 @@ export default function Game({
       return;
     }
 
-    const emptyCells = getEmptyCells(new_board);
-    if(emptyCells.length > 0){
-      const machineCell = Math.floor(Math.random() * (emptyCells.length));
-      const machineCellChoice = emptyCells[machineCell];
-      const machine_row = machineCellChoice[0];
-      const machine_col = machineCellChoice[1];
-      new_board[machine_row][machine_col] = player ? MARKER.SECOND_PLAYER_OR_MACHINE: MARKER.FIRST_PLAYER;
-    }
+    makeMachineMove(new_board, difficulty, mediumFlag)
+    setMediumFlag(!mediumFlag);
     setBoard(new_board);
     setCellLeft(cellLeft-2);
-    if(checkWinner()){
+    if(checkWinner(board) === MARKER.SECOND_PLAYER_OR_MACHINE){
       setPlayerWon(MARKER.SECOND_PLAYER_OR_MACHINE);
       setSecondPlayerScore(secondPlayerScore+1);
     }
+
   }
 
   const humanVsHuman = (row, col) => {
@@ -82,7 +67,7 @@ export default function Game({
     setBoard(new_board);
 
     setCellLeft(cellLeft-1);
-    if(checkWinner()){
+    if(checkWinner(board)){
       const winner = player ? MARKER.FIRST_PLAYER: MARKER.SECOND_PLAYER_OR_MACHINE;
       setPlayerWon(winner);
       if(winner === 1){
@@ -105,33 +90,6 @@ export default function Game({
       humanVsHuman(row, col);
     }
     
-  }
-
-  // Returns true: Someone won depending on whose turn it was
-  // Returns false: Nobody Won
-  const checkWinner = () => {
-    if(
-      // Horizontal rows Check
-    (board[0][0] !== 0 && board[0][0] === board[0][1] && board[0][0] === board[0][2]) ||
-    (board[1][0] !== 0 && board[1][0] === board[1][1] && board[1][0] === board[1][2])  ||
-    (board[2][0] !== 0 && board[2][0] === board[2][1] && board[2][0] === board[2][2]) ||
-
-      // Vertical columns Check
-    (board[0][0] !== 0 && board[0][0] === board[1][0] && board[0][0] === board[2][0]) ||
-    (board[0][1] !== 0 && board[0][1] === board[1][1] && board[0][1] === board[2][1]) ||
-    (board[0][2] !== 0 && board[0][2] === board[1][2] && board[0][2] === board[2][2]) ||
-    
-      // Diagonals Check
-    (board[0][0] !== 0 && board[0][0] === board[1][1] && board[0][0] === board[2][2]) ||
-    (board[2][0] !== 0 && board[2][0] === board[1][1] && board[2][0] === board[0][2])
-    ){
-      // Someone won the game
-      // If it was player 1's turn: Player 1 won
-      // If it was player 2's turn / computer's turn: Player 2 / Computer won
-      return true
-    }
-    // Nobody have won the game yet
-    return false
   }
 
   const renderIcon = (row, col) => {

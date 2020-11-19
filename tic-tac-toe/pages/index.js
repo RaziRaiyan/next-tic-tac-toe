@@ -1,16 +1,27 @@
 import Link from 'next/Link';
-import React from "react";
+import React, {useState} from "react";
+import DifficultyPopup from "../components/DifficultyPopup";
 
 export const GAME_MODE = {
     VS_HUMAN: "VS_HUMAN",
     VS_MACHINE: "VS_MACHINE"
 }
 
+export const DIFFICULTY = {
+    EASY: "EASY",
+    MEDIUM: "MEDIUM",
+    HARD: "HARD",
+    IMPOSSIBLE: "IMPOSSIBLE"
+}
+
 
 const Home = () => {
 
+    const [vsMachine, setVsMachine] = useState(false);
+
     return (
         <div className="font-semibold text-center">
+            {vsMachine && <DifficultyPopup callBack={(e) => setVsMachine(false)}/>}
             <div className="flex justify-evenly mt-10">
                 <img rel="Logo" src="/X_blue.svg" className="h-20"/>
                 <img rel="Logo" src="/O_orange.svg" className="h-20"/>
@@ -33,18 +44,17 @@ const Home = () => {
                         With Friend
                     </a>
                 </Link>
-                <Link href={{
-                            pathname: '/game',
-                            query: { mode: GAME_MODE.VS_MACHINE },
-                        }}>
-                    <a className="p-4 m-4 sm:w-3/4 font-hairline text-center
+                <button
+                    className="p-4 m-4 sm:w-3/4 text-center
                         cursor-pointer
-                        hover:shadow-lgGrayCenter
+                        hover:shadow-lgIndigoCenter
                         transition duration-300 ease-in-out
-                        focus:outline-none uppercase shadow-mdGrayCenter bg-Gray-100 rounded-full text-blueGray-700">
-                        With Machine
-                    </a>
-                </Link>
+                        focus:outline-none uppercase shadow-mdIndigoCenter
+                        font-hairline
+                        bg-blue-500 rounded-full text-gray-100"
+                    onClick={(e) => setVsMachine(true)}>
+                    With Machine
+                </button>
             </div>
         </div>
     )
