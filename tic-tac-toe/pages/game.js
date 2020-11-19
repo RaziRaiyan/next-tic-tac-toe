@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import Dialog from '../components/Dialog';
 import PopUp from '../components/PopUp';
 import {GAME_MODE, DIFFICULTY} from './index';
@@ -11,10 +11,13 @@ export const MARKER = {
   SECOND_PLAYER_OR_MACHINE: -1
 }
 
-// Board:
-// cell having value = 0 : Cell is empty
-// Cell having value = 1 (MARKER.FIRST_PLAYER) : Player 1 marked on the cell
-// Cell having value = -1 (MARKER.SECOND_PLAYER_OR_MACHINE): Player 2 / Computer marked on the cell
+/**
+ * @description: renders game screen
+ * @props: initial_board_state <3 X 3 matrix> : contains initial state of board
+ *         initialPlayerState <boolean> : Decides which player is playing -> true: player 1
+ *                                                                            false: player 2 or Machine
+ *         initialCellLeft <Numeric> : number of cells left on initial starting state
+ * */
 export default function Game({
                                initial_board_state = [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
                                initialPlayerState = true,
@@ -36,6 +39,11 @@ export default function Game({
   const [secondPlayerScore, setSecondPlayerScore] = useState(0);
   const [mediumFlag, setMediumFlag] = useState(false);
 
+  /**
+   * @description: handles human vs human game play
+   * @param: human_row -> corresponding row of cell which was clicked by user
+   *         human_col -> corresponding col of cell which was clicked by user
+   * */
   const humanVsMachine = (human_row, human_col) => {
     if(board[human_row][human_col] !== 0 || playerWon !== 0){
       return;
@@ -61,6 +69,11 @@ export default function Game({
 
   }
 
+  /**
+   * @description: handles human vs human game play
+   * @param: row -> corresponding row of cell which was clicked
+   *         col -> corresponding col of cell which was clicked
+   * */
   const humanVsHuman = (row, col) => {
     let new_board = [...board];
     new_board[row][col] = player ? MARKER.FIRST_PLAYER : MARKER.SECOND_PLAYER_OR_MACHINE;
@@ -79,7 +92,9 @@ export default function Game({
     setPlayer(!player);
   }
 
-  // Handles cell click
+  /**
+   * @description: handles cell click, changes the state of board and makes machine's move if it is Human Vs Machine
+   * */
   const handleCellClick = (e, row, col) => {
     if(board[row][col] !== 0 || playerWon !== 0){
       return;
@@ -92,6 +107,9 @@ export default function Game({
     
   }
 
+  /**
+   * @description: decides which icon to show on cell based on player's turn
+   * */
   const renderIcon = (row, col) => {
     if (board[row][col] === MARKER.FIRST_PLAYER){
       return (<img src="/O_orange.svg" className="h-16 w-16 mx-auto my-auto animate-pop" alt="O"/>)
@@ -101,6 +119,9 @@ export default function Game({
     return null;
   }
 
+  /**
+   * @description: handles restart button click
+   * */
   const handleRestart = () => {
     setBoard(initial_board_state);
     setCellLeft(initialCellLeft);
@@ -110,6 +131,9 @@ export default function Game({
     setSecondPlayerScore(0);
   }
 
+  /**
+   * @description: handles continue button click
+   * */
   const handleContinue = () => {
     setBoard(initial_board_state);
     setCellLeft(initialCellLeft);
@@ -131,10 +155,11 @@ export default function Game({
 
         <div className={`flex justify-center md:mb-10 items-center`} data-testid="data-game-dialog-container">
           {
-            !vsMachine && <Dialog player={player} playerWon={playerWon} cellLeft={cellLeft}/>
+            !vsMachine ? <Dialog player={player} playerWon={playerWon} cellLeft={cellLeft}/> :
+                `${JSON.stringify(difficulty).replaceAll('"', '')}`
           }
-          
         </div>
+
         <div className="flex items-center justify-around md:flex-row flex-col">
 
           <div className="flex md:hidden w-full justify-between">

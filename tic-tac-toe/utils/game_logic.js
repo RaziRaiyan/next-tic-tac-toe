@@ -1,7 +1,11 @@
 import {DIFFICULTY} from "../pages";
 import {MARKER} from "../pages/game";
 
-// Gets empty cells
+/**
+ * @description: gets empty cells from the board
+ * @param: new_board -> a reference of current state of board
+ * @return: array containing coordinates of empty cells
+ * **/
 const getEmptyCells = (new_board) => {
     let emptyCells = [];
     for(let i=0; i<3; i++){
@@ -14,6 +18,13 @@ const getEmptyCells = (new_board) => {
     return emptyCells;
 }
 
+/**
+ * Applying minimax algorithm to find optimal move for machine's turn
+ * @source: https://en.wikipedia.org/wiki/Minimax
+ * @description: Minimax algorithm from game theory to find optimal move
+ * @param: new_board -> a copy of current state of board after the human's turn
+ * @returns: Object of shape {score: <Numeric>, d: <Numeric>}, here d is min depth for optimal move
+ * **/
 const minimax = (new_board, depth, isMaximizing, cell_left) => {
     let result = checkWinner(new_board);
 
@@ -67,8 +78,13 @@ const minimax = (new_board, depth, isMaximizing, cell_left) => {
     }
 }
 
-// Returns true: Someone won depending on whose turn it was
-// Returns false: Nobody Won
+/**
+ * @description: checks if a player or machine is winning the game
+ * @param: board_check -> current state of board
+ * @return: Either returns -> MARKER.FIRST_PLAYER : First player won the game
+ *                            MARKER.SECOND_PLAYER_OR_MACHINE : Second player or machine won the game
+ *                            0: No one have won the game yet
+ * **/
 export const checkWinner = (board_check) => {
     // Horizontal rows Check
     for(let i=0; i<3; i++){
@@ -82,6 +98,7 @@ export const checkWinner = (board_check) => {
         }
     }
 
+    // Vertical rows check
     for(let i=0; i<3; i++){
         if(board_check[0][i] === board_check[1][i] && board_check[1][i] === board_check[2][i]){
             if(board_check[0][i] === MARKER.FIRST_PLAYER){
@@ -93,6 +110,7 @@ export const checkWinner = (board_check) => {
         }
     }
 
+    // First Diagonal Check
     if(board_check[0][0] === board_check[1][1] && board_check[0][0] === board_check[2][2]){
         if(board_check[0][0] === MARKER.FIRST_PLAYER){
             return MARKER.FIRST_PLAYER
@@ -102,6 +120,7 @@ export const checkWinner = (board_check) => {
         }
     }
 
+    // Second Diagonal Check
     if(board_check[2][0] === board_check[1][1] && board_check[2][0] === board_check[0][2]){
         if(board_check[2][0] === MARKER.FIRST_PLAYER){
             return MARKER.FIRST_PLAYER
@@ -114,6 +133,14 @@ export const checkWinner = (board_check) => {
     return 0
 }
 
+
+/**
+ * @description: method that make decision for machine's turn based on difficulty chosen
+ * @param: new_board -> a reference of current state of board
+ *          difficulty -> a value from Object of type DIFFICULTY
+ *          mediumFlag -> boolean value to decide which algorithm to chose (either random move or minmax algorithm for optimal move )
+ * @return: undefined (The method will just manipulate the state of board after deciding which move has to be taken)
+ * **/
 export const makeMachineMove = (new_board, difficulty, mediumFlag) => {
     const emptyCells = getEmptyCells(new_board);
     console.log("Medium Flag: ", mediumFlag);

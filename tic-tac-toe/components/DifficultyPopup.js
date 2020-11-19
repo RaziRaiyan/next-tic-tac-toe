@@ -1,8 +1,11 @@
 import Link from "next/Link";
 import React from "react";
-import {MARKER} from "../pages/game";
 import {DIFFICULTY, GAME_MODE} from "../pages";
 
+/**
+ * @description: difficulty popup component to chose difficulty, if the user selects Vs Machine in the main menu
+ * @props: callBack < fn() >: A callback function to close popup
+ * */
 const DifficultyPopup = ({callBack}) => {
     return (
         <div className="bg-black bg-opacity-50 absolute inset-0
@@ -58,7 +61,7 @@ const DifficultyPopup = ({callBack}) => {
                         hover:shadow-lgRedCenter
                         transition duration-300 ease-in-out
                         focus:outline-none uppercase shadow-mdRedCenter rounded-full text-blueGray-800">
-                        Impossible
+                        Challenging
                     </a>
                 </Link>
                 <button className="absolute top-0 right-0 mt-4 focus:outline-none mr-6 text-red-500" onClick={callBack}>

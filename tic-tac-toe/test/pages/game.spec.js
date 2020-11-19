@@ -1,5 +1,5 @@
 import React from 'react';
-import {render, fireEvent, act} from '../test-utils';
+import {render, fireEvent} from '../test-utils';
 import { cleanup } from '@testing-library/react'
 import Game from "../../pages/game";
 

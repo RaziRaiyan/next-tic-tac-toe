@@ -14,7 +14,9 @@ export const DIFFICULTY = {
     IMPOSSIBLE: "IMPOSSIBLE"
 }
 
-
+/**
+ * @description: renders out menu screen where user can chose game mode and difficulty
+ * */
 const Home = () => {
 
     const [vsMachine, setVsMachine] = useState(false);

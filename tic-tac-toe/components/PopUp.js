@@ -2,6 +2,13 @@ import Link from "next/Link";
 import React from "react";
 import {MARKER} from "../pages/game";
 
+/**
+ * @description: renders popup when any of the user or machine wins the game or match ties
+ * @props: playerWon <MARKER>:
+ *         vsMachine <boolean>
+ *         callBackHandleContinue < fn() >
+ *         callBackHandleRestart < fn() >
+ * */
 const PopUp = ({playerWon, vsMachine, callBackHandleContinue, callBackHandleRestart}) => {
 
     let text = "Match Tied";
