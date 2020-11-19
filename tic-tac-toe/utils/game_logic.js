@@ -6,7 +6,7 @@ import {MARKER} from "../pages/game";
  * @param: new_board -> a reference of current state of board
  * @return: array containing coordinates of empty cells
  * **/
-const getEmptyCells = (new_board) => {
+export const getEmptyCells = (new_board) => {
     let emptyCells = [];
     for(let i=0; i<3; i++){
         for(let j=0; j<3; j++){
