@@ -36,6 +36,8 @@
     - NextJS makes it easy to develop static site with page routing 
 
 ## Project initialisation
+- Check for node version ``` node -v ```
+- Install node JS if you don't have installed:  https://nodejs.org/en/download/
 - Move to tic-tac-toe directory
     ``` cd tic-tac-toe ```
     - install packages: ``` npm install```
